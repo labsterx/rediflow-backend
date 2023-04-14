@@ -1,0 +1,29 @@
+{
+  "name": "E-T-Api",
+  "engines": {
+    "node": "0.0.1"
+  },
+  "private": true,
+  "scripts": {
+    "start": "node ./bin/www",
+    "devstart": "nodemon ./bin/www"
+  },
+  "dependencies": {
+    "axios": "^0.21.1",
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.19.0",
+    "eth-sig-util": "^2.5.4",
+    "ethereumjs-util": "^6.2.1",
+    "express": "^4.16.3",
+    "express-jwt": "^5.3.1",
+    "express-rate-limit": "^3.1.1",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^5.12.0",
+    "morgan": "^1.9.1",
+    "serve-favicon": "~2.4.5",
+    "web3": "^1.3.4"
+  },
+  "devDependencies": {
+    "nodemon": "^1.14.11"
+  }
+}
