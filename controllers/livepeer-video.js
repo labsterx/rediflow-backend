@@ -28,7 +28,8 @@ exports.getLivepeerVideoInfo = async function(req, res) {
         name: result.name,
         ownerAddress: result.ownerAddress,
         created: result.created,
-        isReady: result.isReady
+        isReady: result.isReady,
+        isPaid: result.isPaid
       };
       res.status(200).send(result)
     } else {
@@ -66,7 +67,8 @@ exports.getLivepeerVideosByOwner = async function(req, res) {
           name: result.name,
           ownerAddress: result.ownerAddress,
           created: result.created,
-          isReady: result.isReady
+          isReady: result.isReady,
+          isPaid: result.isPaid,
         };
         list.push(data);
       }
@@ -229,7 +231,7 @@ exports.checkLivepeerAssetStatus = async function(req, res) {
 // ---------------------------------------------------------------------
 exports.updateVideoInfo = function(req, res) {
 
-  if (!req.params.userAddress) {
+  if (!req.params.ownerAddress) {
     return res.status(500).json({msg: 'Error', err: 'Missing userAddress'});
   }
   if (!req.params.assetId) {
@@ -239,12 +241,12 @@ exports.updateVideoInfo = function(req, res) {
   if (!req.user || !req.user.userAddress) {
     return res.status(500).json({msg: 'Error', err: 'Missing senderInfo'});
   }
-  if (req.user.userAddress.toLowerCase() !== req.params.userAddress.toLowerCase()) {
+  if (req.user.userAddress.toLowerCase() !== req.params.ownerAddress.toLowerCase()) {
     return res.status(401).send({ err: 'useraddress in param does not match useraddress in header'});
   }
 
   const assetId = req.params.assetId;
-  const ownerAddress = req.params.userAddress;
+  const ownerAddress = req.params.ownerAddress;
 
   const updateData = {};
   if (req.body.name !== undefined) {
@@ -259,7 +261,7 @@ exports.updateVideoInfo = function(req, res) {
     return res.status(500).json({msg: 'Error', err: 'Missing update data'});
   }
 
-  LivepeerVideoPricingModel.findOneAndUpdate(
+  LivepeerVideoModel.findOneAndUpdate(
     {
       assetId: assetId,
       ownerAddress: ownerAddress,
@@ -270,10 +272,11 @@ exports.updateVideoInfo = function(req, res) {
     },
     function(err, data) {
       if (err) {
-        res.json(500, {msg: 'Error updating data.', err: err});
+        console.log(err)
+        return res.status(500).send({msg: 'Error updating data.', err: err});
       }
       else {
-        res.json(data);
+        return res.status(200).send(data);
       }
     }
   );

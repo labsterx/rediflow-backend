@@ -20,6 +20,7 @@ router.get('/api/livepeer/asset/:assetid', LivepeerVideo.getLivepeerVideoInfo);
 router.get('/api/livepeer/assets-by-owner/:ownerAddress', LivepeerVideo.getLivepeerVideosByOwner);
 router.post('/api/livepeer/upload-request', LivepeerVideo.createUploadRequest);
 router.get('/api/livepeer/check-asset-status/:assetid', LivepeerVideo.checkLivepeerAssetStatus);
+router.post('/api/livepeer/update-video-info/:ownerAddress/:assetId', LivepeerVideo.updateVideoInfo);
 
 // Livepeer Video Pricing
 router.get('/api/livepeer/pricing/:networkId/:ownerAddress', LivepeerVideoPricing.getPricingByOwnerAddress);
