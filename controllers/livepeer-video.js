@@ -18,8 +18,12 @@ exports.getLivepeerVideoInfo = async function(req, res) {
   if (!req.params.assetid) {
     return res.status(500).json({msg: 'Error', err: 'Missing assetId'});
   }
+  if (!req.params.networkId) {
+    return res.status(500).json({msg: 'Error', err: 'Missing networkId'});
+  }  
 
   const assetId = req.params.assetid;
+  const networkId = req.params.networkId;
 
   try {
 
@@ -27,13 +31,28 @@ exports.getLivepeerVideoInfo = async function(req, res) {
     if (result) {
       const data = {
         assetId: result.assetId,
+        videoId: result.videoId,
         name: result.name,
         ownerAddress: result.ownerAddress,
         created: result.created,
         isReady: result.isReady,
-        isPaid: result.isPaid
+        isPaid: result.isPaid,
       };
-      res.status(200).send(result)
+      if (result.playbackId) {
+        data.playbackId = result.playbackId;
+      }
+      if (result.isPaid == true) {
+        // get video pricing
+        const pricingInfo = await LivepeerVideoPricing.findOne({ ownerAddress: result.ownerAddress, networkId: networkId }).exec();
+        if (pricingInfo) {
+          data.tokenName = pricingInfo.tokenName;
+          data.pricePerHour = pricingInfo.pricePerHour;
+        }
+        else {
+          data.isPaid = false;
+        }
+      }
+      res.status(200).send(data)
     } else {
       res.status(404).send({err: 'Not found'});
     }

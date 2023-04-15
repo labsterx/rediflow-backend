@@ -18,7 +18,7 @@ router.post('/livepeer/webhook/access-control', LivepeerVideo.webhookAccessContr
 // Livepeer Video
 router.get('/api/livepeer/featured-videos', LivepeerVideo.getFeaturedVideos);
 router.get('/api/livepeer/new-videos', LivepeerVideo.getNewVideos);
-router.get('/api/livepeer/asset/:assetid', LivepeerVideo.getLivepeerVideoInfo);
+router.get('/api/livepeer/asset/:networkId/:assetid', LivepeerVideo.getLivepeerVideoInfo);
 router.get('/api/livepeer/assets-by-owner/:ownerAddress', LivepeerVideo.getLivepeerVideosByOwner);
 router.post('/api/livepeer/upload-request', LivepeerVideo.createUploadRequest);
 router.get('/api/livepeer/check-asset-status/:assetid', LivepeerVideo.checkLivepeerAssetStatus);
