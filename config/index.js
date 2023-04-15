@@ -1,4 +1,4 @@
-var mongo_uri = "";
+var mongo_uri = process.env.REDIFLOW_MONGO_URI;
 
 module.exports = {
   httpServerPort: 5097,
@@ -13,8 +13,15 @@ module.exports = {
   },
   jwt: {
       metaMaskMessage: 'I agree with the terms and conditions. Please sign me in.',
-      jwtSecret: '[secret]',
+      jwtSecret: process.env.REDIFLOW_jwtSecret,
       tokenExpires: '60m'
+  },
+  api: {
+    livepeer: {
+      key: process.env.REDIFLOW_livepeer_apikey,
+      webhookId: process.env.REDIFLOW_livepeer_webhookId,
+      webhookSecret: process.env.REDIFLOW_livepeer_webhookSecret,
+    },
   },
   network: {
     1: {
