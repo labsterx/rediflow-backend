@@ -35,18 +35,22 @@ module.exports = {
     1: {
       id: 1,
       name: 'Ethereum Mainnet',
+      superfluidSubgrahApiURL: 'https://subgraph.satsuma-prod.com/c5br3jaVlJI6/superfluid/eth-mainnet/api',
     },
     5: {
       id: 5,
       name: 'Goerli Testnet',
+      superfluidSubgrahApiURL: 'https://api.thegraph.com/subgraphs/name/superfluid-finance/protocol-v1-goerli',
     },
     137: {
       id: 137,
       name: 'Polygon Mainnet',
+      superfluidSubgrahApiURL: 'https://api.thegraph.com/subgraphs/name/superfluid-finance/protocol-v1-matic',
     },
     80001: {
       id: 80001,
       name: 'Polygon Mumbai',
+      superfluidSubgrahApiURL: 'https://api.thegraph.com/subgraphs/name/superfluid-finance/protocol-v1-mumbai',
     }    
   },
 

@@ -1,12 +1,14 @@
 'use strict';
 const config  = require('../config');
 const LivepeerVideoModel = require('../models').LivepeerVideo;
+const LivepeerVideoPricing = require('../models/LivepeerVideoPricing');
 const axios = require('axios');
 const apiKey = config.api.livepeer.key;
 const webhookId = config.api.livepeer.webhookId;
 const webhookSecret = config.api.livepeer.webhookSecret;
 const jwt     = require('jsonwebtoken');
 const jwtSecret     = config.jwt.jwtSecret;
+const shortid = require('shortid');
 
 // ---------------------------------------------------------------------
 // getLivepeerVideoInfo
@@ -104,6 +106,7 @@ exports.createUploadRequest = async function(req, res) {
     return res.status(401).send({ err: 'useraddress in body does not match useraddress in header'});
   }  
 
+  const videoId = shortid.generate();
   const userAddress = req.body.userAddress;
   const name = req.body.name;
   let isPaid = false;
@@ -124,6 +127,7 @@ exports.createUploadRequest = async function(req, res) {
       type: 'webhook',
       webhookId: webhookId,
       webhookContext: {
+        videoId: videoId,
         ownerAddress: userAddress,
       },
     },     
@@ -154,6 +158,7 @@ exports.createUploadRequest = async function(req, res) {
   } 
 
   const data = {
+    videoId: videoId,
     ownerAddress: userAddress,
     name: name,
     isPaid: isPaid,
@@ -361,9 +366,11 @@ exports.getFeaturedVideos = async function(req, res) {
 };
 
 // ---------------------------------------------------------------------
-//
+// webhookAccessControl
 // ---------------------------------------------------------------------
-exports.webhookAccessControl = function(req, res) {
+exports.webhookAccessControl = async function(req, res) {
+
+  // console.log(req.body);
 
   if (!req.body.accessKey) {
     return res.status(500).json({msg: 'Error', err: 'Missing accessKey'});
@@ -374,18 +381,95 @@ exports.webhookAccessControl = function(req, res) {
   if (!req.body.context.ownerAddress) {
     return res.status(500).json({msg: 'Error', err: 'Missing context.ownerAddress'});
   }
+  if (!req.body.context.videoId) {
+    return res.status(500).json({msg: 'Error', err: 'Missing context.videoId'});
+  }  
 
   const accessKey = req.body.accessKey;
   const ownerAddress = req.body.context.ownerAddress;
+  const videoId = req.body.context.videoId;
 
   const decoded = jwt.decode(accessKey, jwtSecret);
-  const userAddress = decoded.userAddress;
-
-  const data = {
-    userAddress: userAddress,
-    ownerAddress: ownerAddress,
+  if (!decoded || !decoded.userAddress || !decoded.networkId) {
+    return res.status(500).json({msg: 'Error', err: 'Invalid accessKey'});
   }
 
-  return res.status(200).send(data)
+  const userAddress = decoded.userAddress;
+  const networkId = decoded.networkId;
+
+  // Check if correct information is enchoded in the accessKey
+  if (!userAddress || !networkId ) {
+    return res.status(500).json({msg: 'Error', err: 'Invalid accessKey'});
+  }
+
+  // Check if the video exists
+  const videoInfo = await LivepeerVideoModel.findOne({ videoId: videoId}).exec();
+  if (!videoInfo) {
+    return res.status(404).send({err: 'Not found'});
+  }
+
+  // Check if the video owner offers all video for free
+  if (videoInfo.isPaid === false) {
+    return res.status(200).send({msg: 'Video is free'});
+  }
+
+  // Get the price of the video
+  const pricingInfo = await LivepeerVideoPricing.findOne({ ownerAddress: ownerAddress, networkId: networkId }).exec();
+
+  // If not pricing info found, the video is free
+  if (!pricingInfo) {
+    return res.status(200).send({msg: 'Video is free'});
+  }
+  const tokenName = pricingInfo.tokenName;
+
+  // Check if the user is currently paying for the owner, using subgraph
+  const superfluidSubgrahApiURL = config.network[networkId].superfluidSubgrahApiURL;
+  if (!superfluidSubgrahApiURL) {
+    return res.status(500).json({msg: 'Error', err: 'Could not get data based on networkId'});
+  }
+
+  // Call subgraph API to find out whether the user is paying for the owner
+  const subgraphQuery = `
+{
+  streams(where: {
+      sender: "${userAddress}",
+      receiver: "${ownerAddress}",
+      token_: {symbol: "${tokenName}"},
+      currentFlowRate_gt: "0"
+    }) {
+    currentFlowRate
+    token {
+      symbol
+    }
+    sender {
+      id
+    }
+    receiver {
+      id
+    }
+  }
+}
+  `;
+
+  // console.log(subgraphQuery);
+
+  try {
+    const subgraphRes = await axios.post(superfluidSubgrahApiURL, { query: subgraphQuery });
+    if (!subgraphRes.data.data || !subgraphRes.data.data.streams) {
+      return res.status(500).json({msg: 'Error', err: 'Could not get paying info'});
+    }
+    const list = subgraphRes.data.data.streams;
+    if (list.length === 0) {
+      return res.status(500).json({msg: 'Not Paying', err: 'Viewer is not paying for the owner'});
+    }
+    const payingPrice = list[0].currentFlowRate;
+    if (payingPrice * 3600 < pricingInfo.pricePerHour) {
+      return res.status(500).json({msg: 'Not Paying Enough', err: 'Viewer is not paying enough for the owner'});
+    }
+    return res.status(200).send({msg: 'Access granted.'});
+  } catch (err) {
+    // console.log(err);
+    return res.status(500).json({msg: 'Error', err: 'Could not get paying info: ' + err});
+  }
 
 }
