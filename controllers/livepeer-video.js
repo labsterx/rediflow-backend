@@ -439,6 +439,11 @@ exports.webhookAccessControl = async function(req, res) {
     return res.status(404).send({err: 'Not found'});
   }
 
+  // Check if you are the owner of the video
+  if (videoInfo.ownerAddress.toLowerCase() == userAddress.toLowerCase()) {
+    return res.status(200).send({msg: 'Video is your own'});
+  }
+
   // Check if the video owner offers all video for free
   if (videoInfo.isPaid === false) {
     return res.status(200).send({msg: 'Video is free'});
