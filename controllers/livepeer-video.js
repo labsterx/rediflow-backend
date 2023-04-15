@@ -282,6 +282,47 @@ exports.updateVideoInfo = function(req, res) {
   );
 };
 
+// ---------------------------------------------------------------------
+//
+// ---------------------------------------------------------------------
+exports.deleteVideo = function(req, res) {
+
+  if (!req.params.ownerAddress) {
+    return res.status(500).json({msg: 'Error', err: 'Missing userAddress'});
+  }
+  if (!req.params.assetId) {
+    return res.status(500).json({msg: 'Error', err: 'Missing assetId'});
+  }
+
+  if (!req.user || !req.user.userAddress) {
+    return res.status(500).json({msg: 'Error', err: 'Missing senderInfo'});
+  }
+  if (req.user.userAddress.toLowerCase() !== req.params.ownerAddress.toLowerCase()) {
+    return res.status(401).send({ err: 'useraddress in param does not match useraddress in header'});
+  }
+
+  const assetId = req.params.assetId;
+  const ownerAddress = req.params.ownerAddress;
+
+  // find and delete
+  LivepeerVideoModel.findOneAndDelete(
+    {
+      assetId: assetId,
+      ownerAddress: ownerAddress,
+    },
+    function(err, data) {
+      if (err) {
+        console.log(err)
+        return res.status(500).send({msg: 'Error deleting data.', err: err});
+      }
+      else {
+        return res.status(200).send(data);
+      }
+    }
+  );
+
+};
+
 
 // ---------------------------------------------------------------------
 // getFeaturedVideos
