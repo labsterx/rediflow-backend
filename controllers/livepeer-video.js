@@ -282,6 +282,43 @@ exports.updateVideoInfo = function(req, res) {
   );
 };
 
+
+// ---------------------------------------------------------------------
+// getFeaturedVideos
+// ---------------------------------------------------------------------
+exports.getFeaturedVideos = async function(req, res) {
+
+  const featuredVideos = config.featuredVideos;
+  const list = [];
+
+  try {
+
+    let results = await LivepeerVideoModel.find(
+      {
+        assetId: { "$in" : featuredVideos }
+      }).sort({ created: -1 });
+    if (results) {
+      for (let result of results) {
+        const data = {
+          assetId: result.assetId,
+          name: result.name,
+          ownerAddress: result.ownerAddress,
+          created: result.created,
+          isReady: result.isReady,
+          isPaid: result.isPaid,
+        };
+        list.push(data);
+      }
+    }
+
+    res.status(200).send(list);
+
+  } catch (err) {
+    return res.status(500).send(err);
+  }
+
+};
+
 // ---------------------------------------------------------------------
 //
 // ---------------------------------------------------------------------
