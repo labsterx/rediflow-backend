@@ -16,10 +16,10 @@ const shortid = require('shortid');
 exports.getLivepeerVideoInfo = async function(req, res) {
 
   if (!req.params.assetid) {
-    return res.status(500).json({msg: 'Error', err: 'Missing assetId'});
+    return res.status(400).json({msg: 'Error', err: 'Missing assetId'});
   }
   if (!req.params.networkId) {
-    return res.status(500).json({msg: 'Error', err: 'Missing networkId'});
+    return res.status(400).json({msg: 'Error', err: 'Missing networkId'});
   }  
 
   const assetId = req.params.assetid;
@@ -69,7 +69,7 @@ exports.getLivepeerVideoInfo = async function(req, res) {
 exports.getLivepeerVideosByOwner = async function(req, res) {
 
   if (!req.params.ownerAddress) {
-    return res.status(500).json({msg: 'Error', err: 'Missing ownerAddress'});
+    return res.status(400).json({msg: 'Error', err: 'Missing ownerAddress'});
   }
 
   const ownerAddress = req.params.ownerAddress;
@@ -111,15 +111,15 @@ exports.createUploadRequest = async function(req, res) {
   // console.log(req.body);
 
   if (!req.body.userAddress) {
-    return res.status(500).json({msg: 'Error', err: 'Missing userAddress'});
+    return res.status(400).json({msg: 'Error', err: 'Missing userAddress'});
   }
 
   if (!req.body.name) {
-    return res.status(500).json({msg: 'Error', err: 'Missing name'});
+    return res.status(400).json({msg: 'Error', err: 'Missing name'});
   }  
 
   if (!req.user || !req.user.userAddress) {
-    return res.status(500).json({msg: 'Error', err: 'Missing senderInfo'});
+    return res.status(400).json({msg: 'Error', err: 'Missing senderInfo'});
   }
   if (req.user.userAddress.toLowerCase() !== req.body.userAddress.toLowerCase()) {
     return res.status(401).send({ err: 'useraddress in body does not match useraddress in header'});
@@ -209,7 +209,7 @@ exports.createUploadRequest = async function(req, res) {
 exports.checkLivepeerAssetStatus = async function(req, res) {
 
   if (!req.params.assetid) {
-    return res.status(500).json({msg: 'Error', err: 'Missing assetId'});
+    return res.status(400).json({msg: 'Error', err: 'Missing assetId'});
   }
 
   var assetId = req.params.assetid;
@@ -256,14 +256,14 @@ exports.checkLivepeerAssetStatus = async function(req, res) {
 exports.updateVideoInfo = function(req, res) {
 
   if (!req.params.ownerAddress) {
-    return res.status(500).json({msg: 'Error', err: 'Missing userAddress'});
+    return res.status(400).json({msg: 'Error', err: 'Missing userAddress'});
   }
   if (!req.params.assetId) {
-    return res.status(500).json({msg: 'Error', err: 'Missing assetId'});
+    return res.status(400).json({msg: 'Error', err: 'Missing assetId'});
   }
 
   if (!req.user || !req.user.userAddress) {
-    return res.status(500).json({msg: 'Error', err: 'Missing senderInfo'});
+    return res.status(400).json({msg: 'Error', err: 'Missing senderInfo'});
   }
   if (req.user.userAddress.toLowerCase() !== req.params.ownerAddress.toLowerCase()) {
     return res.status(401).send({ err: 'useraddress in param does not match useraddress in header'});
@@ -282,7 +282,7 @@ exports.updateVideoInfo = function(req, res) {
 
   // check if updateData is empty
   if (Object.keys(updateData).length === 0) {
-    return res.status(500).json({msg: 'Error', err: 'Missing update data'});
+    return res.status(400).json({msg: 'Error', err: 'Missing update data'});
   }
 
   LivepeerVideoModel.findOneAndUpdate(
@@ -312,14 +312,14 @@ exports.updateVideoInfo = function(req, res) {
 exports.deleteVideo = function(req, res) {
 
   if (!req.params.ownerAddress) {
-    return res.status(500).json({msg: 'Error', err: 'Missing userAddress'});
+    return res.status(400).json({msg: 'Error', err: 'Missing userAddress'});
   }
   if (!req.params.assetId) {
-    return res.status(500).json({msg: 'Error', err: 'Missing assetId'});
+    return res.status(400).json({msg: 'Error', err: 'Missing assetId'});
   }
 
   if (!req.user || !req.user.userAddress) {
-    return res.status(500).json({msg: 'Error', err: 'Missing senderInfo'});
+    return res.status(400).json({msg: 'Error', err: 'Missing senderInfo'});
   }
   if (req.user.userAddress.toLowerCase() !== req.params.ownerAddress.toLowerCase()) {
     return res.status(401).send({ err: 'useraddress in param does not match useraddress in header'});
@@ -423,16 +423,16 @@ exports.webhookAccessControl = async function(req, res) {
   // console.log(req.body);
 
   if (!req.body.accessKey) {
-    return res.status(500).json({msg: 'Error', err: 'Missing accessKey'});
+    return res.status(400).json({msg: 'Error', err: 'Missing accessKey'});
   }
   if (!req.body.context) {
-    return res.status(500).json({msg: 'Error', err: 'Missing context'});
+    return res.status(400).json({msg: 'Error', err: 'Missing context'});
   }
   if (!req.body.context.ownerAddress) {
-    return res.status(500).json({msg: 'Error', err: 'Missing context.ownerAddress'});
+    return res.status(400).json({msg: 'Error', err: 'Missing context.ownerAddress'});
   }
   if (!req.body.context.videoId) {
-    return res.status(500).json({msg: 'Error', err: 'Missing context.videoId'});
+    return res.status(400).json({msg: 'Error', err: 'Missing context.videoId'});
   }  
 
   const accessKey = req.body.accessKey;
@@ -441,7 +441,7 @@ exports.webhookAccessControl = async function(req, res) {
 
   const decoded = jwt.decode(accessKey, jwtSecret);
   if (!decoded || !decoded.userAddress || !decoded.networkId) {
-    return res.status(500).json({msg: 'Error', err: 'Invalid accessKey'});
+    return res.status(400).json({msg: 'Error', err: 'Invalid accessKey'});
   }
 
   const userAddress = decoded.userAddress;
@@ -449,7 +449,7 @@ exports.webhookAccessControl = async function(req, res) {
 
   // Check if correct information is enchoded in the accessKey
   if (!userAddress || !networkId ) {
-    return res.status(500).json({msg: 'Error', err: 'Invalid accessKey'});
+    return res.status(400).json({msg: 'Error', err: 'Invalid accessKey'});
   }
 
   // Check if the video exists
@@ -515,11 +515,11 @@ exports.webhookAccessControl = async function(req, res) {
     }
     const list = subgraphRes.data.data.streams;
     if (list.length === 0) {
-      return res.status(500).json({msg: 'Not Paying', err: 'Viewer is not paying for the owner'});
+      return res.status(418).json({msg: 'Not Paying', err: 'Viewer is not paying for the owner'});
     }
     const payingPrice = list[0].currentFlowRate;
     if (payingPrice * 3600 < pricingInfo.pricePerHour) {
-      return res.status(500).json({msg: 'Not Paying Enough', err: 'Viewer is not paying enough for the owner'});
+      return res.status(418).json({msg: 'Not Paying Enough', err: 'Viewer is not paying enough for the owner'});
     }
     return res.status(200).send({msg: 'Access granted.'});
   } catch (err) {

@@ -8,10 +8,10 @@ const LivepeerVideoPricingModel = require('../models').LivepeerVideoPricing;
 exports.getPricingByOwnerAddress = async function(req, res) {
 
   if (!req.params.networkId) {
-    return res.status(500).json({msg: 'Error', err: 'Missing networkId'});
+    return res.status(400).json({msg: 'Error', err: 'Missing networkId'});
   }
   if (!req.params.ownerAddress) {
-    return res.status(500).json({msg: 'Error', err: 'Missing ownerAddress'});
+    return res.status(400).json({msg: 'Error', err: 'Missing ownerAddress'});
   }
 
   const networkId = req.params.networkId;
@@ -45,19 +45,19 @@ exports.getPricingByOwnerAddress = async function(req, res) {
 exports.addPricing = function(req, res) {
 
   if (!req.params.networkId) {
-    return res.status(500).json({msg: 'Error', err: 'Missing networkId'});
+    return res.status(400).json({msg: 'Error', err: 'Missing networkId'});
   }
   if (!req.params.userAddress) {
-    return res.status(500).json({msg: 'Error', err: 'Missing userAddress'});
+    return res.status(400).json({msg: 'Error', err: 'Missing userAddress'});
   }
   if (!req.body.tokenName) {
-    return res.status(500).json({msg: 'Error', err: 'Missing tokenName'});
+    return res.status(400).json({msg: 'Error', err: 'Missing tokenName'});
   }  
   if (!req.body.pricePerHour) {
-    return res.status(500).json({msg: 'Error', err: 'Missing pricePerHour'});
+    return res.status(400).json({msg: 'Error', err: 'Missing pricePerHour'});
   }
   if (!req.user || !req.user.userAddress) {
-    return res.status(500).json({msg: 'Error', err: 'Missing senderInfo'});
+    return res.status(400).json({msg: 'Error', err: 'Missing senderInfo'});
   }
   if (req.user.userAddress.toLowerCase() !== req.params.userAddress.toLowerCase()) {
     return res.status(401).send({ err: 'useraddress in param does not match useraddress in header'});
@@ -94,13 +94,13 @@ exports.addPricing = function(req, res) {
 exports.deletePricing = function(req, res) {
 
   if (!req.params.networkId) {
-    return res.status(500).json({msg: 'Error', err: 'Missing networkId'});
+    return res.status(400).json({msg: 'Error', err: 'Missing networkId'});
   }
   if (!req.params.userAddress) {
-    return res.status(500).json({msg: 'Error', err: 'Missing userAddress'});
+    return res.status(400).json({msg: 'Error', err: 'Missing userAddress'});
   }
   if (!req.user || !req.user.userAddress) {
-    return res.status(500).json({msg: 'Error', err: 'Missing senderInfo'});
+    return res.status(400).json({msg: 'Error', err: 'Missing senderInfo'});
   }
   if (req.user.userAddress.toLowerCase() !== req.params.userAddress.toLowerCase()) {
     return res.status(401).send({ err: 'useraddress in param does not match useraddress in header'});
@@ -132,20 +132,20 @@ exports.deletePricing = function(req, res) {
 exports.updatePricing = function(req, res) {
 
   if (!req.params.networkId) {
-    return res.status(500).json({msg: 'Error', err: 'Missing networkId'});
+    return res.status(400).json({msg: 'Error', err: 'Missing networkId'});
   }
   if (!req.params.userAddress) {
-    return res.status(500).json({msg: 'Error', err: 'Missing userAddress'});
+    return res.status(400).json({msg: 'Error', err: 'Missing userAddress'});
   }
   if (!req.body.tokenName) {
-    return res.status(500).json({msg: 'Error', err: 'Missing tokenName'});
+    return res.status(400).json({msg: 'Error', err: 'Missing tokenName'});
   }  
   if (!req.body.pricePerHour) {
-    return res.status(500).json({msg: 'Error', err: 'Missing pricePerHour'});
+    return res.status(400).json({msg: 'Error', err: 'Missing pricePerHour'});
   }
 
   if (!req.user || !req.user.userAddress) {
-    return res.status(500).json({msg: 'Error', err: 'Missing senderInfo'});
+    return res.status(400).json({msg: 'Error', err: 'Missing senderInfo'});
   }
   if (req.user.userAddress.toLowerCase() !== req.params.userAddress.toLowerCase()) {
     return res.status(401).send({ err: 'useraddress in param does not match useraddress in header'});
